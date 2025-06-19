@@ -48,7 +48,7 @@ while vida_pika > 0 and vida_squi > 0:
     print("\nTurno de Squiertle\n")
 
     ataque_squiertle = None
-    while ataque_squiertle != "P" and ataque_squiertle != "A" and ataque_squiertle != "B" and ataque_squiertle != "N":
+    while ataque_squiertle not in ["P", "A", "B", "N"]:
         ataque_squiertle = input("¿ que ataque deseas realizar? [P]Placaje, [A]Pistola agua, [B]Burbuja, [N]No hacer Nada:\n")
 
     if ataque_squiertle == "P":
