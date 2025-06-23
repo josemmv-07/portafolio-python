@@ -11,6 +11,7 @@ MAP_WIDTH = 20
 MAP_HEIGHT = 15
 
 my_position = [3, 1]
+map_objects = [[2,3], [5,4], [3,4], [10,6]]
 
 while True:
     # Draw Map
@@ -21,6 +22,8 @@ while True:
         for coordinate_x in range(MAP_WIDTH):
             if my_position[POS_X] == coordinate_x and my_position[POS_Y] == coordinate_y:
                 print(" @ ", end="")
+            elif map_objects[POS_X] == coordinate_x and map_objects[POS_Y] == coordinate_y:
+                print("*", end="")
             else:
                 print("   ", end="")
         print("|")
@@ -46,6 +49,5 @@ while True:
         break
     
     os.system("clear")
-
 
 
