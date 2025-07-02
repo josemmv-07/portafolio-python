@@ -8,25 +8,16 @@ ataques que queráis."""
 
 
 import os
-import random
 import readchar
-from random import randint
+import random
 
-titulo = "MINI-POKE"
-print("\n" + titulo +"\n" + "-" * len(titulo) + "\n")
-
+# Conf del mapa
 POS_X = 0
 POS_Y = 1
-NUM_DE_ENTREN_EN_MAP = 6
+NUM_ENTRENADORES = 5 
 
-yo_entre = [0,1]
-map_entre = []
-entrenador_ganado = 0
-entrenadores = []
-fin_juego = False
-vencido = False
-
-obstaculo = """\
+# Obstáculos
+mapa = """\
 ##########################
 #######                  #
 #######               ####
@@ -41,127 +32,195 @@ obstaculo = """\
 ########               ###
 #                  #######
 #####                 ####
-##########################\
-"""
-# Creando obstáculo
-obstaculo = [list(fila) for fila in obstaculo.split("\n")]
+##########################"""
 
-MAP_ANCHO = len(obstaculo[0])
-MAP_ALTURA = len(obstaculo)
+mi_posicion = [5,5]
+entrenadores = []
+fin_juego = False
+victorias = 0
 
+# Lista de enemigos
+pokemon_enemigos = ["Squirtle", "Charmander", "Bulbasur", "Geodude", "Machop"]
+
+mapa = [list(fila) for fila in mapa.split("\n")]
+ANCHO = len(mapa[0])
+ALTO = len(mapa)
+
+print("Bienvenido al mundo Pokemon!!!")
+print("Controles: w(arriba), s(abajo), a(izquierda), d(derecha), q(salir)")
+print("Tu pokemon es (Pikachu)")
+print("Derrota a todos los entrenadores (*)")
+input("Dale a ENTER.....")
+
+# Entrenadores en posiciones random 
+while len(entrenadores) < NUM_ENTRENADORES:
+    nueva_pos = [random.randint(0, ANCHO -1), random.randint(0, ALTO -1)]
+
+    if (nueva_pos not in entrenadores and nueva_pos != mi_posicion and mapa[nueva_pos[POS_Y]]
+        [nueva_pos[POS_X]] != "#"):
+        entrenadores.append(nueva_pos)
+
+# Bucle principal
 while not fin_juego:
     os.system("clear")
-    # Generamos entrenadores random en el mapa
-    while len(map_entre) < NUM_DE_ENTREN_EN_MAP:
-        nuevo_yo_entre = [random.randint(0, MAP_ANCHO - 1), random.randint(0, MAP_ALTURA - 1)]
 
-        if nuevo_yo_entre not in map_entre and nuevo_yo_entre != yo_entre and \
-                obstaculo[nuevo_yo_entre[POS_Y]][nuevo_yo_entre[POS_X]] != "#":
-            map_entre.append(nuevo_yo_entre)
+    print(f"POKEMON - Victorias: {victorias}/{NUM_ENTRENADORES}")
+    print("TU = @, Entrenadores = *")
+    print()
+
+    # Mapa
+    for y in range(ALTO):
+        for x in range(ANCHO):
+            if mi_posicion[POS_X] == x and mi_posicion[POS_Y] == y:
+                print("@", end="")
+            elif [x, y] in entrenadores:
+                print("*",end="")
+            elif mapa[y][x] == "#":
+                print("#", end="")
+            else:
+                print(" ", end="")
+        print()
     
-    # MAPA
-    print("+" + "-" * MAP_ANCHO * 4 + "+")
+    print(f"\nEntrenadores restantes = {len(entrenadores)}")
 
-    for coordenada_y in range(MAP_ALTURA):
-        print("|", end="")
+    # Si gana
+    if len(entrenadores) == 0:
+        print("\n¡FELICIDADES!!!! ")
+        break
 
-        for coordenada_x in range(MAP_ANCHO):
+    # Dirección del jugador 
+    direccion = readchar.readchar().lower()
+    nueva_posicion = None
 
-            simbolo_que_mostrar = "  "
-            objeto_en_la_celda = None
-            entre_en_la_celda = None
+    if direccion == "w":
+        nueva_posicion = [mi_posicion[POS_X], (mi_posicion[POS_Y] - 1) % ALTO]
+    elif direccion == "s":
+        nueva_posicion = [mi_posicion[POS_X], (mi_posicion[POS_Y] + 1) % ALTO]
+    elif direccion == "a":
+        nueva_posicion = [(mi_posicion[POS_X] - 1) % ANCHO, mi_posicion[POS_Y]]
+    elif direccion == "d":
+        nueva_posicion = [(mi_posicion[POS_X] + 1) % ANCHO, mi_posicion[POS_Y]]
+    elif direccion == "q":
+        fin_juego = True
+        print("Gracias por jugar !!!!")
+        break
 
-            for map_entrenadores in map_entre:
-                if map_entrenadores[POS_X] == coordenada_x and map_entrenadores[POS_Y] == coordenada_y:
-                    simbolo_que_mostrar = " *"
-                    objeto_en_la_celda = map_entrenadores
+    if nueva_posicion:
+        # Verificamos que no tenemos obstáculo
+        if mapa[nueva_posicion[POS_Y]][nueva_posicion[POS_X]] != "#":
+            mi_posicion = nueva_posicion
 
-            for combate in entrenadores:
-                if combate[POS_X] == coordenada_x and combate[POS_Y] == coordenada_y:
-                    vida_inicial_pika = 80
-                    vida_inicial_squi = 90
+            # Verificamos si hay entrenadores 
+            entrenador_encontrado = None
+            for i, entrenador in enumerate(entrenadores):
+                if entrenador[POS_X] == mi_posicion[POS_X] and entrenador[POS_Y] == mi_posicion[POS_Y]:
+                    entrenador_encontrado = entrenador
+                    pokemon_enemigo = pokemon_enemigos[i]
+                    break
 
-                    tamanio_barra_vi = 20
+            # Batalla
+            if entrenador_encontrado:
+                os.system("clear")
+                print("UN ENTRENADOR TE DESAFÍA!!!!!!")
+                print(F"Tu Pikachu vs {pokemon_enemigo} enemigo")
+                print()
 
-                    vida_pika = vida_inicial_pika
-                    vida_squi = vida_inicial_squi
+                # Vida de los Pokemon
+                vida_pikachu = 85
+                if pokemon_enemigos == "Squirtle":
+                    vida_enemigo = 90
+                elif pokemon_enemigos == "Charmander":
+                    vida_enemigo = 80
+                elif pokemon_enemigos == "Bulbasaur":
+                    vida_enemigo = 88
+                elif pokemon_enemigos == "Geodude":
+                    vida_enemigo = 95
+                else: # Machop
+                    vida_enemigo = 82
+                
+                vida_enemigo_max = vida_enemigo
 
+                # Bucle de la batalla
+                while vida_enemigo > 0 and vida_pikachu > 0:
 
-                    while vida_pika > 0 and vida_squi > 0:
-                        
-                        # se devuelve los turnos de combate
+                    # Turno de entrenadores
+                    print(f"Turno de {pokemon_enemigo}:")
+                    ataque = random.randint(1, 2)
 
-                        #Turno de Pikachu
-                        print("\nTurno de Pikachu\n")
-                        ataque_pikachu = randint(1, 2)
-                        if ataque_pikachu == 1:
-                            # Bola voltio
-                            print("Pikacho ataca con Bola voltio\n")
-                            vida_squi -= 10
+                    if pokemon_enemigos == "Squirtle":
+                        if ataque == 1:
+                            print("Squirtle usa pistola agua !!!")
+                            vida_pikachu -= 12
                         else:
-                            #Onda Trueno
-                            print("Pikachu ataca con Onda Trueno\n")
-                            vida_squi -= 11
-
-                        vida_pika = max(0,vida_pika)
-                        vida_squi = max(0, vida_squi)
-
-                        barras_de_vida_pika = int(vida_pika * tamanio_barra_vi / vida_inicial_pika)
-                        print("Pikachu:    [{}{}] ({}/{})".format("*" * barras_de_vida_pika, " " * (10 - barras_de_vida_pika),
-                                                                vida_pika, vida_inicial_pika))
-                        
-                        barras_de_vida_squi = int(vida_squi * tamanio_barra_vi / vida_inicial_squi)
-                        print("Squirtle:   [{}{}] ({}/{})".format("*" * barras_de_vida_squi, " " * (10 - barras_de_vida_squi),
-                                                                vida_squi, vida_inicial_squi))
-                        
-                        if vida_squi <= 0:
-                            print("¡Squirtle ha sido derrotado!\n")
-                            break
-                        
-                        input("\nEnter para continuar...\n\n")
-                        os.system('clear')
-
-                        # Turno de Squiertle
-                        print("\nTurno de Squiertle\n")
-
-                        ataque_squiertle = None
-                        while ataque_squiertle not in ["P", "A", "B", "N"]:
-                            ataque_squiertle = input("¿ que ataque deseas realizar? [P]Placaje, [A]Pistola agua, [B]Burbuja, [N]No hacer Nada:\n")
-
-                        if ataque_squiertle == "P":
-                            print("Squirtle ataca con Placaje\n")
-                            vida_pika -= 10
-                        elif ataque_squiertle == "A":
-                            print("Squirtle ataca con Pistola agua\n")
-                            vida_pika -= 12
-                        elif ataque_squiertle == "B":
-                            print("Squirtle ataca con Burbuja\n")
-                            vida_pika -= 9
-                        elif ataque_squiertle == "N":
-                            print("Squirtle no hace nada")
-                            vida_pika == 0
-
-                        vida_pika = max(0, vida_pika)
-                        vida_squi = max(0, vida_squi)
-
-                        barras_de_vida_pika = int(vida_pika * tamanio_barra_vi / vida_inicial_pika)
-                        print("Pikachu:   [{}{}]({}/{})".format("*" * barras_de_vida_pika, " " * (10 - barras_de_vida_pika),
-                                                                vida_pika, vida_inicial_pika))
-                        
-                        barras_de_vida_squi = int(vida_squi * tamanio_barra_vi / vida_inicial_squi)
-                        print("Squirtle:    [{}{}][{}/{}]".format("*" * barras_de_vida_squi, " " * (10 - barras_de_vida_squi),
-                                                                vida_squi, vida_inicial_pika))
-                        
-                        if vida_pika <= 0:
-                            print("¡Pikachu ha sido derrotado!\n")
-                            break
-                        
-                        input("Pulsa enter para continuar...\n")
+                            print("Squirtle usa BURBUJA")
+                            vida_pikachu -= 9
+                    elif pokemon_enemigos == "Charmander":
+                        if ataque == 1:
+                            print("Charmander usa Ascuas!!!!")
+                            vida_pikachu -= 11
+                        else:
+                            print("Charmander usa ARAÑAZO")
+                            vida_pikachu -= 8
+                    elif pokemon_enemigos == "Bulbasur":
+                        if ataque == 1:
+                            print("Bulbasaur usa Hoja afilada!!")
+                            vida_pikachu -= 10
+                        else:
+                            print("Bulbasaur usa Placaje!!!!")
+                            vida_pikachu -= 9
+                    elif pokemon_enemigos == "Geodude":
+                        if ataque == 1:
+                            print("Geodude usa Lanzarrocas")
+                            vida_pikachu -= 13
+                        else:
+                            print("Geudude usa PUÑOOOOO")
+                            vida_pikachu -= 10
+                    else: # Machap
+                        if ataque == 1:
+                            print("MACHOP USA GOLPE KARATE")
+                            vida_pikachu -= 14
+                        else:
+                            print("Machop usa Patada baja!!!")
+                            vida_pikachu -= 11
                     
-                        os.system('clear')
-                        
-                        
-                    if vida_pika > vida_squi:
-                        print("Pikachu ¡GANA!!!!")
-                    else:
-                        print("Squirtle ¡GANA!!!")  
+                    vida_pikachu = max(0, vida_pikachu)
+                    vida_enemigo = max(0, vida_enemigo)
+
+                    print(f"{pokemon_enemigo}: {vida_enemigo}/{vida_enemigo_max}")
+                    print(f"Pikachu: {vida_pikachu}/85")
+
+                    if vida_pikachu <= 0:
+                        print("\n Pikachu ha sido derrotado")
+                        input("ENTER para continuar.....")
+                        break
+
+                    print("\nTu turno:")
+                    print("[i]Impactrueno, [r]Rayo, [a]Ataque rápido")
+                    ataque_jugador = readchar.readchar().lower()
+
+                    if ataque_jugador == "i":
+                        print("Pikachu usa IMPACTRUENO")
+                        vida_enemigo -= 12
+                    elif ataque_jugador == "r":
+                        print("Pikachu usa RAYO")
+                        vida_enemigo -= 15
+                    elif ataque_jugador == "a":
+                        print("Pikachu usa ataque rápido ")
+                        vida_enemigo -= 10
+                    
+                    vida_pikachu = max(0, vida_pikachu)
+                    vida_enemigo = max(0, vida_enemigo)
+
+                    print(f"{pokemon_enemigo}: {vida_enemigo}/{vida_enemigo_max}")
+                    print(f"Pikachu: {vida_pikachu}/85")
+                    print()
+
+                    if vida_enemigo <= 0:
+                        print(f"{pokemon_enemigo} ha sido derrotado!!")
+                        print("PIKACHU HA GANADO!!!!!")
+                        entrenadores.remove(entrenador_encontrado)
+                        victorias += 1
+                        input("ENTER para continuar...")
+                        break
+
+print("\n FIN del Juego")
