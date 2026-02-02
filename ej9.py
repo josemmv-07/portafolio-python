@@ -1,0 +1,5 @@
+c = float(input("Dime el capital inicial: "))
+r = float(input("Dime el interés anual: "))
+n = float(input("Número de años: "))
+f = round(c * (1 + r / 100) ** n, 2)
+print("Tu capital final obtenido es: " + str(f))
