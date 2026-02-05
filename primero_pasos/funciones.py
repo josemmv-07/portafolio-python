@@ -35,5 +35,21 @@ imprimeMensajes() # Llamada/invocación de la función
 
 print("El programa ha terminado su ejecución")
 
+def imPri():
+
+    return "Este es el mensaje de la función" # devolver un valor solo puede uno 
+
+print(imPri())
+
+valorMensaje = imPri()
+print(valorMensaje)
+
+def imprimeMensajePersonalizado(mensaje, valor1, valor2):   # parametro o argumento
+
+    return mensaje + str((valor1 + valor2)) # solo se puede llamar desde la función 
+
+print(imprimeMensajePersonalizado("La suma es ", 5, 7)) # se almacena por el orden de la llamada 
+ 
+
 
 
