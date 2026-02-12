@@ -18,10 +18,10 @@ print("Mi edad es " + str(edad))
 
 empleados = ["Ana", "Óscar", "María", "Pedro", "Juan"]
 
-print(" ".join(empleados))
-print(empleados)
+print(" ".join(empleados)) # separar lista por lo que este entre " "
+print(empleados) 
 
 empleados1 ="Ana, Óscar, María, Pedro, Juan"
-print(empleados1)
+print(empleados1) 
 
-print(empleados1.split())
+print(empleados1.split()) # Convertir en lista 
